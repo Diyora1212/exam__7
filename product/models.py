@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db.models import CharField, ImageField, URLField, ForeignKey, CASCADE, EmailField, Model, DateTimeField, \
-    IntegerField
+    IntegerField, ManyToManyField
 
 
 class AbstractModel(Model):
@@ -20,8 +20,8 @@ class User(AbstractUser):
         swappable = 'AUTH_USER_MODEL'
 
 
-User._meta.get_field('groups').related_query_name = 'product_user_groups'
-User._meta.get_field('user_permissions').related_query_name = 'product_user_permissions'
+# User._meta.get_field('groups').related_query_name = 'product_user_groups'
+# User._meta.get_field('user_permissions').related_query_name = 'product_user_permissions'
 
 
 class ProductAuthor(AbstractModel):
@@ -31,8 +31,20 @@ class ProductAuthor(AbstractModel):
     avatar = ImageField(upload_to="authors/avatar/%Y/%m/%d")
     like_count = IntegerField(default=0)
 
-    def total_likes(self):
-        return self.total_likes()
+    @property
+    def like_count(self):
+        return self.authorslike_set.count()
+
+    def __str__(self):
+        return self.first_name
+
+
+class AuthorLike(AbstractModel):
+    user = ForeignKey(User, CASCADE, 'likes')
+    author = ForeignKey(ProductAuthor, CASCADE, )
+
+    def __str__(self):
+        return f"{self.author}-{self.user}"
 
 
 class Product(AbstractModel):

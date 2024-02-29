@@ -1,13 +1,86 @@
-{% extends 'base.html' %}
 {% load crispy_forms_tags %}
-{% block title %} Login Page {% endblock %}
-{% block content %}
-    <h3>Login Page</h3>
-    <div class="col-4 mt-3">
-        <form method="post">
-            {% csrf_token %}
-            {{ form|crispy }}
-            <button type="submit" class="btn btn-secondary mt-2">Login</button>
-        </form>
-    </div>
-{% endblock %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    
+    <meta charset="utf-8">
+    <meta name="author" content="templatemo">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap"
+          rel="stylesheet">
+
+    <title>Liberty NFT Marketplace - HTML CSS Template</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+
+
+    <!-- Additional CSS Files -->
+    <link rel="stylesheet" href="{% static 'css/fontawesome.css' %}">
+    <link rel="stylesheet" href="{% static 'css/templatemo-liberty-market.css' %}">
+    <link rel="stylesheet" href="{% static 'css/owl.css' %}">
+    <link rel="stylesheet" href="{% static 'css/animate.css' %}">
+    <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
+    <!--
+    
+    TemplateMo 577 Liberty Market
+    
+    https://templatemo.com/tm-577-liberty-market
+    
+    -->
+</head>
+
+<body>
+
+<!-- ***** Preloader Start ***** -->
+{#<div id="js-preloader" class="js-preloader">#}
+{#    <div class="preloader-inner">#}
+{#        <span class="dot"></span>#}
+{#        <div class="dots">#}
+{#            <span></span>#}
+{#            <span></span>#}
+{#            <span></span>#}
+{#        </div>#}
+{#    </div>#}
+{#</div>#}
+<!-- ***** Preloader End ***** -->
+
+<!-- ***** Header Area Start ***** -->
+<header class="header-area header-sticky">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <nav class="main-nav">
+                    <!-- ***** Logo Start ***** -->
+                    <a href="{% url 'home' %}" class="logo">
+                        <img src="{% static 'images/logo.png' %}" alt="">
+                    </a>
+                    <!-- ***** Logo End ***** -->
+                    <!-- ***** Menu Start ***** -->
+                    <ul class="nav">
+                        <li><a href="{% url 'home' %}" class="active">Home</a></li>
+                        <li><a href="{% url 'explore' %}">Explore</a></li>
+                        <li><a href="{% url 'detail' %}">Item Details</a></li>
+                        <li><a href="{% url 'author' %}">Author</a></li>
+                        
+                        {% block title %} Login Page {% endblock %}
+{#                        {% block content %}#}
+                            <h3>Login Page</h3>
+                    <div class="container mt-5">
+                        <div class="row justify-content-center">
+                            <div class="col-4 mt-3">
+                                <form method="post">
+                                    {% csrf_token %}
+                                    {{ form|crispy }}
+                                    <button type="submit" class="btn btn-secondary mt-2">Login</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+{#                        {% endblock %}#}
+</body>
+</html>

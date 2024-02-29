@@ -1,17 +1,23 @@
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth import logout
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
-from django.shortcuts import render, redirect
-from .forms import UserRegisterForm, UserLoginForm
+from django.shortcuts import render, redirect, get_object_or_404
+from django.db.models import Count
+from django.urls import reverse
+# from .forms import UserRegisterForm, UserLoginForm
 from django.views.decorators.http import require_http_methods
+from django.views.generic import View
+
 from .models import *
 
 
 def home(request):
-    # data = TestCard.objects.all()
-    return render(request, template_name='index.html')
+    data = Product.objects.all()
+    return render(request, template_name='index.html', context={'data': data})
 
 
 def explore(request):
@@ -26,68 +32,62 @@ def detail_view(request):
 
 @login_required
 def create_view(request):
-    # data = TestCard.objects.all()
     return render(request, template_name='create.html')
 
 
-def author_view(request, author_id):
-    model = ProductAuthor
-    author = ProductAuthor.objects.get(pk=author_id)
-    like_count = author.calculate_like_count()
+def author_view(request):
+    # user = get_object_or_404(
+    #     User.objects.annotate(total_likes=Count('post__likes')), pk=user_id
+    # )
+    # products = Product.objects.filter(author=user)
+    # return render(
+    #     request,
+    #     'author.html',
+    #     {'user': user, 'posts': products, 'request_user': request.user},
+    # )
+    return render(request, template_name='author.html')
 
-    context = {
-        'like_count': like_count,
-    }
 
-    return render(request, template_name='author.html', context=context)
+class LikeAuthorView(View):
+    def get(self, request, pk):
+        authors = ProductAuthor.objects.get(pk=pk)
+        like, created = AuthorLike.objects.get_or_create(user=request.user, author=authors)
+        if not created:
+            like.delete()
+        return redirect(reverse("author", kwargs={"pk": authors.products.pk}))
 
 
-@require_http_methods(["GET", "POST"])
+
+
+
+# @require_http_methods(["GET", "POST"])
+
 def login_view(request):
-    if request.method == "POST":
-        form = AuthenticationForm(data=request.POST)
+    if request.method == 'POST':
+        form = AuthenticationForm(request, request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get("username")
-            password = form.cleaned_data.get("password")
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(request, user)
-                messages.info(request, f"You have logged in as {username}")
-                return redirect("home")
-            else:
-                messages.error(request, "Invalid username or password")
-        else:
-            messages.error(request, "Invalid form submission. Please check your data.")
+            user = form.get_user()
+            login(request, user)
+            return redirect('home')
     else:
         form = AuthenticationForm()
-
-    context = {
-        "form": form
-    }
-    return render(request, "login.html", context=context)
+    return render(request, 'login.html', {'form': form})
 
 
-@require_http_methods(["GET", "POST"])
 def register_view(request):
-    if request.method == "POST":
-        create_form = UserRegisterForm(request.POST, request.FILES)
-        if create_form.is_valid():
-            create_form.save()
-            messages.success(request, "Registration successful. Please log in.")
-            return redirect("login")
-        else:
-            messages.error(request, "Invalid form submission. Please check your data.")
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('home')
     else:
-        create_form = UserRegisterForm()
-
-    context = {
-        "form": create_form
-    }
-    return render(request, "register.html", context=context)
+        form = UserCreationForm()
+    return render(request, 'register.html', {'form': form})
 
 
-@require_http_methods(["GET"])
-def logout(request):
+# @require_http_methods(["GET"])
+def logout_view(request):
     logout(request)
     messages.success(request, "User successfully logged out")
     return redirect("home")
