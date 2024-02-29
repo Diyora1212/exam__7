@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth import logout
 from django.contrib.auth import login, logout, authenticate
@@ -48,16 +48,21 @@ def author_view(request):
     return render(request, template_name='author.html')
 
 
-class LikeAuthorView(View):
-    def get(self, request, pk):
-        authors = ProductAuthor.objects.get(pk=pk)
-        like, created = AuthorLike.objects.get_or_create(user=request.user, author=authors)
-        if not created:
-            like.delete()
-        return redirect(reverse("author", kwargs={"pk": authors.products.pk}))
-
-
-
+# @login_required
+# def like_author(request, author_id):
+#     author = get_object_or_404(ProductAuthor, pk=author_id)
+#     user = request.user
+#
+#     # Check if the user has already liked the author
+#     if not AuthorLike.objects.filter(author=author, user=user).exists():
+#         # If not, create a new like
+#         AuthorLike.objects.create(author=author, user=user)
+#         # Update the like count in the author model
+#         author.like_count += 1
+#         author.save()
+#
+#     # Return a JsonResponse with the updated like count
+#     return JsonResponse({'like_count': author.like_count})
 
 
 # @require_http_methods(["GET", "POST"])
